@@ -138,7 +138,7 @@ function Home() {
 
           <div style={{ marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
             <div>
-              <label style={{ fontWeight: 'bold', fontSize: '16px' }}>AI Heuristic (Play Against AI):</label>
+              <label style={{ fontWeight: 'bold', fontSize: '16px' }}>AI 1 Heuristic (Play Against AI):</label>
               <select
                 style={dropdownStyle}
                 onChange={(e) => setAi1Heuristic(e.target.value)}
@@ -157,7 +157,7 @@ function Home() {
             </div>
 
             <div>
-              <label style={{ fontWeight: 'bold', fontSize: '16px' }}>AI vs AI Heuristic:</label>
+              <label style={{ fontWeight: 'bold', fontSize: '16px' }}>AI 2 Heuristic:</label>
               <select
                 style={dropdownStyle}
                 onChange={(e) => setAi2Heuristic(e.target.value)}
