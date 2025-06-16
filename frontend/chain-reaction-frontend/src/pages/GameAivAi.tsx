@@ -60,7 +60,7 @@ function GameAivAi() {
       console.log("Game over check:", gameOverRes.data);
       if (gameOverRes.data === true) {
         console.log("Game over detected");
-        await new Promise(resolve => setTimeout(resolve, 180));
+        await new Promise(resolve => setTimeout(resolve, 800));
         navigate("/results");
         return;
       }

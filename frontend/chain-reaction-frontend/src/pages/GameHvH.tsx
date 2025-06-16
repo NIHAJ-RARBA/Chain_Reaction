@@ -21,7 +21,7 @@ function GameHvH() {
       const gameOverRes = await isGameOver();
         if (gameOverRes.data === true) {
             console.log("Game is over, navigating to results page");
-            await new Promise(resolve => setTimeout(resolve, 180));
+            await new Promise(resolve => setTimeout(resolve, 500));
             navigate('/results');
         }
     });
