@@ -4,6 +4,10 @@ package chain_Reaction.chainReaction.service;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -38,7 +42,12 @@ public class GameService {
     private int heuristicTypeIfOnlyOneAi = 8;
 
     private int movesCount = 0;
+    private int moveCount[] = {0, 0}; // for each player
     private boolean isGameOver = false;
+
+    private long timeLimitMillis = 5000;
+    private boolean lastWasHeuristic = true; 
+    private int depth[] = {6, 6}; 
 
     public void initializeGame(int rows, int columns) 
     {
@@ -51,6 +60,9 @@ public class GameService {
         this.playerIndex = 0;
         this.isGameOver = false;
         this.movesCount = 0;
+        this.winnerIndex = -1;
+
+        this.moveCount = new int[Player.values().length];
         for (int i = 0; i < Player.values().length; i++) {
             score[i] = 0;
         }
@@ -146,6 +158,7 @@ public class GameService {
             playerRotation();
             
             movesCount++;
+            moveCount[currentPlayer.ordinal()]++;
 
 
 
@@ -158,6 +171,13 @@ public class GameService {
                     System.err.println("Error writing game state to file: " + e.getMessage());
                 }
                 System.out.println("Game over. Player " + currentPlayer + " has won!\n" + getGameState());
+                System.out.println("Moves made by each player: " + 
+                    Player.RED + ": " + moveCount[Player.RED.ordinal()] + ", " + 
+                    Player.BLUE + ": " + moveCount[Player.BLUE.ordinal()]);
+
+                moveCount[0] = 0;
+                moveCount[1] = 0;
+                movesCount = 0; 
             } 
             else 
             {
@@ -178,6 +198,123 @@ public class GameService {
     }
 
 
+    // only used for AI vs Random games. 
+    //will not be used for live site games
+
+    /*
+    public boolean makeAIMove() {
+        if (!isCurrentPlayerHuman()) {
+            if (this.isGameOver) {
+                System.out.println("Game is already over. AI cannot make a move.");
+                return false;
+            }
+
+            System.out.println("AI (" + getCurrentPlayer() + ") is thinking...");
+
+            int[] move;
+
+            // Alternate: heuristic first, then random, then heuristic, ...
+            if (!lastWasHeuristic) {
+                System.out.println("AI is making a HEURISTIC move. Heuristic Type: " +
+                    (areBothAi() ? heuristicTypeIfBothAi[getPlayerIndex()] : heuristicTypeIfOnlyOneAi));
+                int depth = 5;
+                int heuristic = areBothAi() ? heuristicTypeIfBothAi[getPlayerIndex()] : heuristicTypeIfOnlyOneAi;
+                
+                Future<int[]> futureMove = Executors.newSingleThreadExecutor().submit(() ->
+                    agentAlgoService.getMiniMaxMove(gameBoard, getCurrentPlayer(), depth, heuristic)
+                );
+
+                try {
+                    move = futureMove.get(timeLimitMillis, TimeUnit.MILLISECONDS);
+                } catch (TimeoutException e) {
+                    System.err.println("Minimax timed out. Using random move.");
+                    futureMove.cancel(true);
+                    move = agentAlgoService.randomMove(gameBoard, getCurrentPlayer());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return false;
+                }
+
+            } else {
+                System.out.println("AI is making a RANDOM move.");
+                move = agentAlgoService.randomMove(gameBoard, getCurrentPlayer());
+            }
+
+            lastWasHeuristic = !lastWasHeuristic;
+
+            if (move == null) {
+                System.err.println("AI has no valid moves.");
+                return false;
+            }
+
+            int row = move[0];
+            int col = move[1];
+            System.out.println("AI (" + getCurrentPlayer() + ") chooses: " + row + ", " + col);
+            makeMove(row, col);
+        }
+
+        return true;
+    }
+
+    */
+
+    // AI vs AI setup
+    // main game e use hobena etao
+
+   /*
+    public boolean makeAIMove() 
+    {
+        if (!isCurrentPlayerHuman()) {
+            if (this.isGameOver) {
+                System.out.println("Game is already over. AI cannot make a move.");
+                return false;
+            }
+
+            System.out.println("AI (" + getCurrentPlayer() + ") is thinking... Heuristic Type: " +
+                    (areBothAi() ? heuristicTypeIfBothAi[getPlayerIndex()] : heuristicTypeIfOnlyOneAi)
+                    + "And Depth: " + depth[getPlayerIndex()]);
+
+            int[] fallbackMove = agentAlgoService.randomMove(gameBoard, getCurrentPlayer());
+            int[] selectedMove = fallbackMove;
+
+            // int depth = 5;
+            int heuristic = areBothAi() ? heuristicTypeIfBothAi[getPlayerIndex()] : heuristicTypeIfOnlyOneAi;
+            int aiDepth = depth[getPlayerIndex()];
+
+            Future<int[]> futureMove = Executors.newSingleThreadExecutor().submit(() -> {
+                if (areBothAi() && movesCount < 3) {
+                    return fallbackMove;
+                } else {
+                    return agentAlgoService.getMiniMaxMove(gameBoard, getCurrentPlayer(), aiDepth, heuristic);
+                }
+            });
+
+            try {
+                selectedMove = futureMove.get(timeLimitMillis, TimeUnit.MILLISECONDS);
+            } catch (TimeoutException e) {
+                System.err.println("Minimax timed out. Using random move.");
+                futureMove.cancel(true); // try to stop the task
+            } catch (Exception e) {
+                e.printStackTrace();
+                return false;
+            }
+
+            if (selectedMove == null) {
+                System.err.println("AI has no valid moves.");
+                return false;
+            }
+
+            int row = selectedMove[0];
+            int col = selectedMove[1];
+            System.out.println("AI (" + getCurrentPlayer() + ") chooses: " + row + ", " + col);
+
+            makeMove(row, col);
+        }
+
+        return true;
+    }
+
+    */
 
     public boolean makeAIMove() {
 
@@ -369,6 +506,7 @@ public class GameService {
         if (playersWithOrbs == 1) {
             gameWon(previousPlayerWithOrbs);
             winnerIndex = previousPlayerWithOrbs;
+
             return true; // Only one player has orbs left, they win
         }
 

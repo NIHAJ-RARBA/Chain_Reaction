@@ -208,15 +208,14 @@ public class MiniMaxHeuristics {
                                 int ni = i + d[0], nj = j + d[1];
                                 if (ni >= 0 && ni < rows && nj >= 0 && nj < cols) {
                                     Cell neighbor = cells[ni][nj];
-                                    if (neighbor.getOwnerPlayer() == player &&
-                                        neighbor.getOrbCount() == neighbor.getMaxOrbs() - 1) {
+                                    if (neighbor.getOrbCount() == neighbor.getMaxOrbs() - 1) {
                                         clusterBonus += 25;
                                     }
                                 }
                             }
                         }
 
-                        // Weight based on center proximity (cells in the middle of the board have higher impact)
+                        
                         int distFromCenter = Math.abs(i - rows / 2) + Math.abs(j - cols / 2);
                         int centerWeight = (rows + cols) / 2 - distFromCenter;
                         centerWeightBonus += centerWeight * orbCount;
@@ -243,7 +242,7 @@ public class MiniMaxHeuristics {
                                 Cell neighbor = board.getBoard()[ni][nj];
                                 if (neighbor.getOwnerPlayer() != null && neighbor.getOwnerPlayer() != player &&
                                     neighbor.getOrbCount() == neighbor.getMaxOrbs() - 1) {
-                                    penalty += (5 - neighbor.getMaxOrbs()); // Heavier penalty for easier enemy explosions
+                                    penalty += (7 - neighbor.getMaxOrbs()); 
                                 }
                             }
                         }
