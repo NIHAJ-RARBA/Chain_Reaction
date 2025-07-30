@@ -20,7 +20,6 @@ public class AgentAlgoService {
 
     private final Random random = new Random();
     private MiniMaxHeuristics miniMaxHeuristics = new MiniMaxHeuristics();
-
     private Board tempBoard;
 
     
@@ -60,13 +59,14 @@ public class AgentAlgoService {
     public int[] getMiniMaxMove(Board board, Player player, int depth, int heuristic)
     {
         int[] moves = new int[2];
-        
-        if (board == null || player == null || depth < 0) {
+          if (board == null || player == null || depth < 0) {
             System.out.println("Invalid input parameters for minimax.");
             return null; 
         }
-        tempBoard = board;
         System.out.println("starting:\n" + getGameState(board));
+
+        tempBoard = board.deepCopy();
+
 
         int[][] result = minimax(board, player, heuristic, true, depth, Integer.MIN_VALUE, Integer.MAX_VALUE);
 
@@ -236,55 +236,48 @@ public class AgentAlgoService {
         currentCell.setOrbCount(currentCell.getOrbCount() + 1);
         return checkAndHandleExplosion(tempBoard, row, column);
     }
-
-
-    private int[][] minimax(Board board, Player player, int heuristic, boolean maximizingPlayer, int depth, int alpha, int beta)
+    
+    
+    private int[][] minimax(Board board, Player originalPlayer, int heuristic, boolean maximizingPlayer, int depth, int alpha, int beta)
     {
         if (depth == 0 || isGameOver(board)) {
-            // System.out.println("Board\n" + getGameState(board));
-            // System.out.println("Reached base case: depth = " + depth + ", game over: " + isGameOver(board));
+            // Evaluate from the perspective of the original maximizing player
+            Player evalPlayer = originalPlayer;
+            int eval = miniMaxHeuristics.getEval(board, evalPlayer, heuristic);
             
-            // System.out.println("Depth: " + depth + ", " + player + " Eval: " + miniMaxHeuristics.maxNearExplosionsEval(board, player));
-
+            // If this is a game over state, apply win/loss bonus
+            if (isGameOver(board)) {
+                Player winner = getWinner(board);
+                if (winner == originalPlayer) {
+                    eval += Integer.MAX_VALUE; // Big bonus for winning
+                } else if (winner != null) {
+                    eval -= Integer.MIN_VALUE; // Big penalty for losing
+                }
+            }
             
-            int eval = miniMaxHeuristics.getEval(board, player, heuristic);
-            
-            
-            // eval = miniMaxHeuristics.maxOrbsEval(board, player);
-
-
-            // if (!maximizingPlayer) {
-            //     eval = -eval;
-            // }
-
             return new int[][]{{eval}, tempBoard.getMoveMade(board)};
-        }
-
+        }        // Determine current player based on maximizing/minimizing
+        Player currentPlayer = maximizingPlayer ? originalPlayer : 
+                              (originalPlayer == Player.RED ? Player.BLUE : Player.RED);
+        
         int bestValue;
         int[] bestMove = new int[2];
-        // depth--;
+        
         if (maximizingPlayer) 
         {
-            List<int[]> validMoves = getAllValidMoves(board, player);
-            // System.out.println("MAX---"+player+" Depth: " + depth + ", Valid Moves: " + validMoves.size());
+            List<int[]> validMoves = getAllValidMoves(board, currentPlayer);
+            validMoves = orderMoves(board, currentPlayer, validMoves); // Order moves
             bestValue = Integer.MIN_VALUE;
+            
             for (int[] move : validMoves) 
             {
                 int row = move[0];
                 int col = move[1];
                 
-                Board afterMove = tryMove(board, player, row, col);
-                Player nextPlayer = player == Player.RED ? Player.BLUE : Player.RED;
-
-                int[][] result = minimax(afterMove, nextPlayer, heuristic,false, depth - 1, alpha, beta);
+                Board afterMove = tryMove(board, currentPlayer, row, col);
+                
+                int[][] result = minimax(afterMove, originalPlayer, heuristic, false, depth - 1, alpha, beta);
                 int eval = result[0][0];
-                // System.out.println("Evaluating move by " + player + " at (" + row + ", " + col + 
-                // ") with heuristic value: " + eval);
-
-                // if (eval >= beta) {
-                //     break;
-                // }
-
 
                 if (eval > bestValue) {
                     bestValue = eval;
@@ -305,25 +298,18 @@ public class AgentAlgoService {
         {
             bestValue = Integer.MAX_VALUE;
             
-            List<int[]> validMoves = getAllValidMoves(board, player);
-            // System.out.println("MIN---"+player+" Depth: " + depth + ", Valid Moves: " + validMoves.size());
+            List<int[]> validMoves = getAllValidMoves(board, currentPlayer);
+            validMoves = orderMoves(board, currentPlayer, validMoves); // Order moves
+            
             for (int[] move : validMoves) 
             {
                 int row = move[0];
                 int col = move[1];
                 
-                Board tempBoard = tryMove(board, player, row, col);
-                Player nextPlayer = player == Player.RED ? Player.BLUE : Player.RED;
-
-                int[][] result = minimax(tempBoard, nextPlayer, heuristic, true, depth - 1, alpha, beta);
-                int eval = result[0][0];
-                // System.out.println("Evaluating move by " + player + " at (" + row + ", " + col + 
-                //                    ") with heuristic value: " + eval);
+                Board afterMove = tryMove(board, currentPlayer, row, col);
                 
-                // if (eval <= alpha)
-                // {
-                //     break;
-                // }
+                int[][] result = minimax(afterMove, originalPlayer, heuristic, true, depth - 1, alpha, beta);
+                int eval = result[0][0];
 
                 if (eval < bestValue) {
                     bestValue = eval;
@@ -339,11 +325,68 @@ public class AgentAlgoService {
             }
 
             return new int[][]{{bestValue}, bestMove};
-
         }
 
 
 
+    }
+
+    private Player getWinner(Board gameBoard) {
+        int[] score = {0, 0}; 
+        
+        for (int i = 0; i < Player.values().length; i++) {
+            score[i] = 0;
+        }
+
+        for (int i = 0; i < gameBoard.getRows(); i++) {
+            for (int j = 0; j < gameBoard.getColumns(); j++) {
+                Cell cell = gameBoard.getBoard()[i][j];
+                if (!cell.isEmpty() && cell.hasOwner()) {
+                    score[cell.getOwnerPlayer().ordinal()] += cell.getOrbCount();
+                }
+            }
+        }
+
+        // Find the player with orbs
+        for (int i = 0; i < Player.values().length; i++) {
+            if (score[i] > 0) {
+                return Player.values()[i];
+            }
+        }
+        
+        return null; // No winner yet
+    }
+
+    // Order moves to improve alpha-beta pruning efficiency
+    private List<int[]> orderMoves(Board board, Player player, List<int[]> validMoves) {
+        validMoves.sort((move1, move2) -> {
+            int score1 = evaluateMove(board, player, move1);
+            int score2 = evaluateMove(board, player, move2);
+            return Integer.compare(score2, score1); // Descending order
+        });
+        return validMoves;
+    }
+    
+    private int evaluateMove(Board board, Player player, int[] move) {
+        int row = move[0];
+        int col = move[1];
+        Cell cell = board.getBoard()[row][col];
+        
+        int score = 0;
+        
+        // Prioritize moves that lead to explosions
+        if (cell.getOrbCount() + 1 == cell.getMaxOrbs()) {
+            score += 100;
+        }
+        
+        // Prefer corner and edge positions
+        if ((row == 0 || row == board.getRows() - 1) && (col == 0 || col == board.getColumns() - 1)) {
+            score += 50; // Corner
+        } else if (row == 0 || row == board.getRows() - 1 || col == 0 || col == board.getColumns() - 1) {
+            score += 30; // Edge
+        }
+        
+        return score;
     }
 
 

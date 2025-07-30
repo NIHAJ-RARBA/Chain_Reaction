@@ -27,6 +27,9 @@ public class MiniMaxHeuristics {
                 return orbCapturePotentialEval(board, player);
             case 8:
                 return positionalControlEval(board, player);
+            case 9:
+                return evenRowColEval(board, player);
+
             default:
                 throw new IllegalArgumentException("Invalid heuristic type");
         }
@@ -301,7 +304,8 @@ public class MiniMaxHeuristics {
                                 weight = 2;
                             }
 
-                            score += weight * cell.getOrbCount();
+                            // score += weight * cell.getOrbCount();
+                            score += weight / cell.getOrbCount();
                         }
                     }
                 }
@@ -310,7 +314,35 @@ public class MiniMaxHeuristics {
             }
                     
 
+            public int evenRowColEval(Board board, Player player) {
 
+                int score = 0;
+                for (int i = 0; i < board.getRows(); i++) {
+                    for (int j = 0; j < board.getColumns(); j++) {
+                        Cell cell = board.getBoard()[i][j];
+                        if (cell.getOwnerPlayer() == player) {
+                            // int weight = 1;
 
+                            // // Corner
+                            // if ((i == 0 || i == board.getRows() - 1) && (j == 0 || j == board.getColumns() - 1)) {
+                            //     weight = 3;
+                            // }
+                            // // Edge (but not corner)
+                            // else if (i == 0 || i == board.getRows() - 1 || j == 0 || j == board.getColumns() - 1) {
+                            //     weight = 2;
+                            // }
+
+                            // score += weight * cell.getOrbCount();
+
+                            if (i % 2 == 0 || j % 2 == 0) {
+                                // score += 7 + cell.getOrbCount() - i; // lower row gets higher value or priority when tied
+                                score += 7 - i; // lower row gets higher value or priority when tied
+                            }
+                        }
+                    }
+                }
+                return score;
+
+            }
 
 }
