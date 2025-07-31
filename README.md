@@ -58,8 +58,8 @@ Chain Reaction is a strategic board game where players place atoms on a grid. Wh
 
 ### Quick Start
 ```bash
-# 1. Download and run setup
-setup-complete.bat
+# 1. Clone the repository
+git clone https://github.com/NIHAJ-RARBA/Chain_Reaction.git
 
 # 2. Launch the game
 start.bat
