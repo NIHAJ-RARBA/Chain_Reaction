@@ -14,31 +14,32 @@ function GameControls({ gameMode, player, refreshPlayer }: GameControlsProps) {
     const ai2Heuristic = parseInt(localStorage.getItem('ai2Heuristic') || '1');
     return { ai1Heuristic, ai2Heuristic };
   };
-  const handleStart = () => {
+  const handleStart = async () => {
     console.log(`Restarting game in ${gameMode} mode`);
     const { rows, cols } = getConfig();
     const { ai1Heuristic, ai2Heuristic } = getAiHeuristics();
-    if (gameMode === 'HvH') {
-      startGameHvH(rows, cols).catch((err) => {
-        console.error("Failed to start game", err);
-      });
-    } else if (gameMode === 'HvAI') {
-      startGameHvAi(rows, cols, ai1Heuristic).catch((err) => {
-        console.error("Failed to start game", err);
-      });
-      
-
-    } else {
-      startGameAivAi(rows, cols, ai1Heuristic, ai2Heuristic).catch((err) => {
-        console.error("Failed to start game", err);
-      });
+    
+    try {
+      if (gameMode === 'HvH') {
+        await startGameHvH(rows, cols);
+      } else if (gameMode === 'HvAI') {
+        await startGameHvAi(rows, cols, ai1Heuristic);
+      } else {
+        await startGameAivAi(rows, cols, ai1Heuristic, ai2Heuristic);
+      }
+      refreshPlayer();
+      console.log(`Game restarted in ${gameMode} mode`);
+    } catch (err) {
+      console.error("Failed to start game", err);
     }
-    refreshPlayer();
-    console.log(`Game restarted in ${gameMode} mode`);
   };
 
-  const handleRestart = () => {
-    handleStart();
+  const handleRestart = async () => {
+    await handleStart();
+    
+    // Wait a bit for the backend to process the restart
+    await new Promise(resolve => setTimeout(resolve, 500));
+
     window.location.reload();
   };
 

@@ -44,6 +44,17 @@ public class GameController {
         
         int rows, cols;
         System.out.println("Received setupDTO: " + setupDTO);
+        
+        // Clear/empty the game state file first before starting new game
+        try {
+            // Write empty content to clear the file
+            java.nio.file.Files.writeString(java.nio.file.Paths.get("gamestate.txt"), "", 
+                java.nio.file.StandardOpenOption.CREATE, java.nio.file.StandardOpenOption.TRUNCATE_EXISTING);
+            System.out.println("Game state file cleared for new game");
+        } catch (Exception e) {
+            System.err.println("Warning: Could not clear game state file: " + e.getMessage());
+        }
+        
         if (setupDTO == null || setupDTO.getRows() <= 0 || setupDTO.getColumns() <= 0) 
         {
             rows = 9;
