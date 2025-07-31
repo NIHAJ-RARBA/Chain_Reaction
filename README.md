@@ -12,35 +12,43 @@ Chain Reaction is a strategic board game where players place atoms on a grid. Wh
 
 ## Game Features
 
-<table>
+<table width="100%">
 <tr>
 <td width="50%" valign="top">
 
-### Game Modes
-- **Human vs Human** - Classic two-player mode
-- **Human vs AI** - Play against intelligent computer opponents  
-- **AI vs AI** - Watch AI algorithms compete
+<h3>Game Modes</h3>
+<ul>
+<li><strong>Human vs Human</strong> - Classic two-player mode</li>
+<li><strong>Human vs AI</strong> - Play against intelligent computer opponents</li>  
+<li><strong>AI vs AI</strong> - Watch AI algorithms compete</li>
+</ul>
 
-### AI Implementation
-- **Minimax Algorithm** - Optimal move selection
-- **Alpha-Beta Pruning** - Performance optimization
-- **Multiple Heuristics** - Various board evaluation strategies
-- **Timeout Protection** - AI moves have time limits
+<h3>AI Implementation</h3>
+<ul>
+<li><strong>Minimax Algorithm</strong> - Optimal move selection</li>
+<li><strong>Alpha-Beta Pruning</strong> - Performance optimization</li>
+<li><strong>Multiple Heuristics</strong> - Various board evaluation strategies</li>
+<li><strong>Timeout Protection</strong> - AI moves have time limits</li>
+</ul>
 
 </td>
 <td width="50%" valign="top">
 
-### User Interface
-- **Clean, Modern Design** - React-based interface with TypeScript
-- **Real-time Updates** - Live game board updates
-- **Player Status Indicators** - Clear visual feedback
-- **Responsive Layout** - Works on different screen sizes
+<h3>User Interface</h3>
+<ul>
+<li><strong>Clean, Modern Design</strong> - React-based interface with TypeScript</li>
+<li><strong>Real-time Updates</strong> - Live game board updates</li>
+<li><strong>Player Status Indicators</strong> - Clear visual feedback</li>
+<li><strong>Responsive Layout</strong> - Works on different screen sizes</li>
+</ul>
 
-### Technical Features
-- **Full-Stack Architecture** - Spring Boot backend + React frontend
-- **File-based Game State** - Persistent game state management
-- **RESTful API** - Clean separation between frontend and backend
-- **Hot Reload** - Development-friendly with automatic reloading
+<h3>Technical Features</h3>
+<ul>
+<li><strong>Full-Stack Architecture</strong> - Spring Boot backend + React frontend</li>
+<li><strong>File-based Game State</strong> - Persistent game state management</li>
+<li><strong>RESTful API</strong> - Clean separation between frontend and backend</li>
+<li><strong>Hot Reload</strong> - Development-friendly with automatic reloading</li>
+</ul>
 
 </td>
 </tr>
