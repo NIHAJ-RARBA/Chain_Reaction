@@ -1,159 +1,140 @@
 # Chain Reaction Game
 
-A full-stack implementation of the Chain Reaction game with AI opponents using Spring Boot backend and React frontend.
+A strategy game where players place atoms on a grid to trigger explosive chain reactions. Features AI opponents with advanced algorithms and a modern web interface.
 
 ## Game Description
 
-Chain Reaction is a strategy game where players place atoms on a grid. When a cell reaches its critical mass, it explodes and spreads atoms to adjacent cells, potentially causing chain reactions.
+Chain Reaction is a strategic board game where players take turns placing atoms on a grid. When a cell reaches its critical mass, it explodes and spreads atoms to adjacent cells, potentially causing chain reactions that can dramatically change the game state.
+
+## Game Features
+
+### Game Modes
+- **Human vs Human**: Classic two-player mode
+- **Human vs AI**: Play against intelligent computer opponents
+- **AI vs AI**: Watch AI algorithms compete against each other
+
+### AI Implementation
+- **Minimax Algorithm**: Optimal move selection with configurable depth
+- **Alpha-Beta Pruning**: Performance optimization for faster decisions
+- **Multiple Heuristics**: Various board evaluation strategies
+- **Timeout Protection**: AI moves have time limits to prevent hanging
+
+### User Interface
+- **Clean, Modern Design**: React-based interface with TypeScript
+- **Real-time Updates**: Live game board updates via file polling
+- **Player Status Indicators**: Clear visual feedback for game state
+- **Responsive Layout**: Works on different screen sizes
+
+### Technical Features
+- **Full-Stack Architecture**: Spring Boot backend + React frontend
+- **File-based Game State**: Persistent game state management
+- **RESTful API**: Clean separation between frontend and backend
+- **Hot Reload**: Development-friendly with automatic reloading
+
+## Running the Game
+
+### Quick Start
+1. **Download** the `setup-complete.bat` script
+2. **Run** the script in any directory to set up the complete project
+3. **Launch** the game using the generated `start.bat` file
+4. **Play** at http://localhost:3000
+
+### Prerequisites
+- Java 17 or higher
+- Node.js 18 or higher
+- Internet connection (for dependency downloads)
+
+### First Time Setup
+The `setup-complete.bat` script automatically:
+- Checks and guides installation of required tools
+- Creates the complete project structure
+- Downloads all dependencies (Maven + npm)
+- Generates helper scripts for easy launching
+
+### Running After Setup
+- **Quick Launch**: Double-click `start.bat`
+- **Backend Only**: Run `start-backend.bat`
+- **Frontend Only**: Run `start-frontend.bat`
+- **Cleanup**: Run `cleanup.bat` to remove build artifacts
+
+### Application URLs
+- **Game Interface**: http://localhost:3000
+- **Backend API**: http://localhost:8080
+
+### Performance Notes
+- **First startup**: ~30 seconds (building Java application)
+- **Subsequent runs**: ~10 seconds (using cached build)
+- **Auto-features**: Handles dependencies, port conflicts, browser opening
+
+### Stopping the Application
+- **Recommended**: Close terminal windows with Ctrl+C
+- **If stuck**: Run `cleanup-ports.bat` to force-stop services
+- **Manual**: Kill Java and Node processes via Task Manager
 
 ## Project Structure
 
 ```
 Chain_Reaction/
+├── setup-complete.bat        # Complete project setup script
 ├── start.bat                 # Main launcher script
 ├── start-backend.bat         # Backend startup script
 ├── start-frontend.bat        # Frontend startup script
+├── cleanup.bat               # Build cleanup script
 ├── backend/
 │   └── chainReaction/        # Spring Boot application
-│       ├── src/
-│       ├── target/           # Built JAR files
-│       ├── mvnw.cmd         # Maven wrapper
-│       └── pom.xml          # Maven dependencies
+│       ├── src/             # Java source code
+│       ├── target/          # Built JAR files
+│       ├── mvnw.cmd        # Maven wrapper
+│       └── pom.xml         # Maven dependencies
 └── frontend/
     └── chain-reaction-frontend/ # React application
-        ├── src/
-        ├── public/
-        ├── package.json
-        └── vite.config.ts
+        ├── src/            # React TypeScript source
+        ├── public/         # Static assets
+        ├── package.json    # npm dependencies
+        └── vite.config.ts  # Build configuration
 ```
 
-## Quick Start
-
-### Prerequisites
-- Java 17 or higher
-- Node.js 16 or higher
-
-### Getting Started
-
-1. **Double-click** `start.bat` or run from command line:
-   ```bash
-   .\start.bat
-   ```
-2. **Wait** for both windows to open and load
-3. **Browser opens automatically** to the game interface
-4. **Start playing!**
-
-### Performance Notes
-- **First startup**: ~30 seconds (building Java application)
-- **Subsequent runs**: ~10 seconds (using cached build)
-- **Auto-features**: Installs dependencies, handles port conflicts, opens browser
-
-### Stopping the Application
-
-When you're done playing:
-1. **In the launcher window**: Press **Q** to quit and cleanup automatically  
-2. **Or manually**: Close both terminal windows (backend and frontend)
-3. **If stuck**: Run `cleanup-ports.bat` to force-stop everything
-
-### Manual Start (Advanced)
-- Backend only: Run `start-backend.bat`
-- Frontend only: Run `start-frontend.bat`
-
-### First Time Setup
-
-The startup scripts automatically handle:
-- Building the Spring Boot application (if needed)
-- Installing npm dependencies (if needed)
-- Starting both servers
-- Handling username paths with spaces
-- Opening browser to game interface
-
-## Application URLs
-
-- **Frontend (Game UI)**: http://localhost:5173 (or next available port)
-- **Backend (API)**: http://localhost:8080
-
-## Game Features
-
-- **Game Modes**:
-  - Human vs Human
-  - Human vs AI
-  - AI vs AI
-- **AI Implementation**: Minimax algorithm with alpha-beta pruning and multiple heuristics
-- **Game State Updates**: File-based polling for real-time board updates
-- **Responsive UI**: React-based interface with TypeScript
-
-## Development
+## Technical Implementation
 
 ### Backend (Spring Boot)
 - **Framework**: Spring Boot 3.5.0
 - **Language**: Java 17
 - **Build Tool**: Maven
+- **API**: RESTful endpoints for game operations
 
 ### Frontend (React + TypeScript)
-- **Framework**: React 18 with TypeScript
+- **Framework**: React 19 with TypeScript
 - **Build Tool**: Vite
-- **Styling**: Inline CSS styling
+- **Styling**: CSS with responsive design
 - **State Management**: React Hooks
-
-## Key Files
-
-- `start.bat` - Main application launcher (with cleanup options)
-- `start-backend.bat` - Spring Boot server launcher
-- `start-frontend.bat` - React development server launcher
-- `cleanup-ports.bat` - Force cleanup all services and free ports
-- `backend/chainReaction/src/main/java/` - Java source code
-- `frontend/chain-reaction-frontend/src/` - React source code
 
 ## Troubleshooting
 
-### Quick Fixes
+### Common Issues
+
+**Setup fails?**
+- Ensure Java 17+ and Node.js 18+ are installed
+- Run `setup-complete.bat` as Administrator
+- Check internet connection for dependency downloads
 
 **Ports already in use?**
 ```bash
-.\cleanup-ports.bat
+.\cleanup.bat
 ```
 
 **Services won't start?**
-- Check Java 17+ is installed: `java -version`
-- Check Node.js 16+ is installed: `node -version`
-- Run cleanup script first, then restart
+- Verify prerequisites: `java -version` and `node -version`
+- Run cleanup first, then restart
+- Check Windows firewall/antivirus blocking
 
-### Port Cleanup
-
-**Automatic Cleanup**: The main launcher (`start.bat`) includes cleanup options:
-- Press **Q** when exiting to automatically stop all services and free ports
-- Press **C** for manual cleanup commands
-- Press any other key to exit launcher only (services continue running)
-
-**Manual Cleanup**: If services are stuck or ports remain occupied:
-```bash
-# Run the dedicated cleanup script
-.\cleanup-ports.bat
-
-# Or manually kill processes
-taskkill /F /IM java.exe    # Stop backend
-taskkill /F /IM node.exe    # Stop frontend
-```
-
-### Common Issues
-
-1. **Maven wrapper fails**: The scripts automatically handle username paths with spaces using Windows short path format.
-
-2. **Port conflicts**: 
-   - Frontend will automatically use the next available port if 5173 is busy
-   - Backend uses port 8080 (ensure it's not in use)
-   - Use `cleanup-ports.bat` to force-free occupied ports
-
-3. **Build errors**: Check Java version (17+) and internet connection for Maven dependencies
-
-4. **npm errors**: Ensure Node.js is installed and accessible from command line
-
-5. **Services won't stop**: Use the cleanup script or close command windows with Ctrl+C
+**Build errors?**
+- Ensure Java 17+ is properly installed and in PATH
+- Clear Maven cache if needed
+- Check internet connection for dependencies
 
 ### Manual Commands
 
-If automatic scripts fail, you can run manually:
+If automatic scripts fail:
 
 ```bash
 # Backend
@@ -165,22 +146,6 @@ cd "frontend/chain-reaction-frontend"
 npm install
 npm run dev
 ```
-
-## Game Algorithms
-
-The AI implementation includes:
-- **Minimax Algorithm**: For optimal move selection with configurable depth
-- **Alpha-Beta Pruning**: For performance optimization
-- **Heuristic Evaluation Functions**: Multiple custom board evaluation strategies
-- **Timeout Protection**: AI moves have time limits to prevent hanging
-
-## UI Features
-
-- Clean, modern interface
-- Real-time game board updates via file polling
-- Player status indicators
-- Game mode selection
-- Game results display
 
 ## Contributing
 
