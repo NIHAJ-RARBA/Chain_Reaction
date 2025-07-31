@@ -66,18 +66,14 @@ public class GameService {
         for (int i = 0; i < Player.values().length; i++) {
             score[i] = 0;
         }
-        
-        // Reset game state file with all zeros
         String[] empty = new String[rows];
         for (int i = 0; i < rows; i++) {
             empty[i] = "0 ".repeat(columns).trim();
         }
         try {
-            // Write initial empty state to completely reset the file
-            FileIO.writeGameState(String.join("\n", empty), "Game Reset - Initial State:");
-            System.out.println("Game state file reset with all zeros for " + rows + "x" + columns + " board");
+            FileIO.writeGameState(String.join("\n", empty), "Human Move:");
         } catch (IOException e) {
-            System.err.println("Error writing initial game state to file: " + e.getMessage());
+            System.err.println("Error writing initial game state to file.");
         }
     }
 
