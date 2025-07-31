@@ -51,9 +51,20 @@ REM Wait for backend to start properly
 echo Waiting for backend to start...
 timeout /t 12 /nobreak >nul
 
+REM Minimize the backend window after it's started
+echo Minimizing backend window...
+powershell -Command "Add-Type -AssemblyName Microsoft.VisualBasic; [Microsoft.VisualBasic.Interaction]::AppActivate('Chain Reaction Backend'); Start-Sleep 1; Add-Type -AssemblyName System.Windows.Forms; [System.Windows.Forms.SendKeys]::SendWait('%{F9}')" >nul 2>&1
+
 REM STEP 3: Start Frontend
 echo [STEP 3/3] Starting React Frontend...
 start "Chain Reaction Frontend" cmd /k "start-frontend.bat"
+
+REM Wait for frontend to start
+timeout /t 5 /nobreak >nul
+
+REM Minimize the frontend window after it's started
+echo Minimizing frontend window...
+powershell -Command "Add-Type -AssemblyName Microsoft.VisualBasic; [Microsoft.VisualBasic.Interaction]::AppActivate('Chain Reaction Frontend'); Start-Sleep 1; Add-Type -AssemblyName System.Windows.Forms; [System.Windows.Forms.SendKeys]::SendWait('%{F9}')" >nul 2>&1
 
 REM Wait for frontend to start
 timeout /t 5 /nobreak >nul
@@ -67,40 +78,55 @@ echo Backend API:  http://localhost:8080
 echo Frontend UI:  http://localhost:5174
 echo.
 echo Both services are running in separate windows.
-echo Close this window to stop all services and cleanup ports.
+@REM echo Close this window to stop all services and cleanup ports.
 echo.
 
-:keep_running
-timeout /t 10 /nobreak >nul 2>nul || goto :cleanup
-goto :keep_running
+REM Start cleanup monitor in background
+start /min "" cmd /c "cleanup.bat %PID%"
 
-REM This section runs when the window is closed (Ctrl+C or X button)
-:cleanup
+echo Press any key to stop all services or close this window...
+pause >nul
+
+REM Manual cleanup if user pressed a key
 echo.
-echo Cleaning up services...
+echo Stopping services...
 
-REM Kill the backend and frontend windows by title
+REM First try to close windows by title
 taskkill /FI "WINDOWTITLE eq Chain Reaction Backend*" /F >nul 2>&1
 taskkill /FI "WINDOWTITLE eq Chain Reaction Frontend*" /F >nul 2>&1
 
-REM Kill Spring Boot processes (Java processes running our jar)
-for /f "tokens=2" %%i in ('tasklist /FI "IMAGENAME eq java.exe" /FO csv ^| findstr "chainReaction"') do (
-    taskkill /PID %%i /F >nul 2>&1
+REM Also try to kill any window containing "vite", "react", or "npm"
+taskkill /FI "WINDOWTITLE eq *vite*" /F >nul 2>&1
+taskkill /FI "WINDOWTITLE eq *react*" /F >nul 2>&1
+taskkill /FI "WINDOWTITLE eq *npm*" /F >nul 2>&1
+
+REM Kill any cmd window running from our frontend directory
+taskkill /FI "WINDOWTITLE eq *chain-reaction-frontend*" /F >nul 2>&1
+
+REM Use PowerShell to find and kill cmd processes running our batch files
+echo Finding processes by command line...
+powershell -Command "Get-WmiObject Win32_Process | Where-Object {$_.CommandLine -like '*start-frontend.bat*' -or $_.CommandLine -like '*start-backend.bat*'} | ForEach-Object {Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue}"
+
+REM Kill all cmd processes except this one
+for /f "skip=1 tokens=2" %%i in ('tasklist /FI "IMAGENAME eq cmd.exe" /FO csv /NH 2^>nul') do (
+    set "pid=%%~i"
+    if "!pid!" neq "%PID%" (
+        taskkill /PID !pid! /F >nul 2>&1
+    )
 )
 
-REM Kill processes using port 8080
-for /f "tokens=5" %%i in ('netstat -ano ^| findstr ":8080"') do (
-    taskkill /PID %%i /F >nul 2>&1
-)
-
-REM Kill Node.js processes (React dev server)
+REM Kill all Java and Node processes
+taskkill /F /IM java.exe >nul 2>&1
 taskkill /F /IM node.exe >nul 2>&1
 
-REM Kill processes using port 5173-5175 (common Vite ports)
+REM Clean up ports
+for /f "tokens=5" %%i in ('netstat -ano 2^>nul ^| findstr ":8080"') do (
+    taskkill /PID %%i /F >nul 2>&1
+)
 for /L %%p in (5173,1,5175) do (
-    for /f "tokens=5" %%i in ('netstat -ano ^| findstr ":%%p"') do (
+    for /f "tokens=5" %%i in ('netstat -ano 2^>nul ^| findstr ":%%p"') do (
         taskkill /PID %%i /F >nul 2>&1
     )
 )
 
-echo ✓ Services stopped and ports freed
+echo ✓ All services stopped and windows closed
