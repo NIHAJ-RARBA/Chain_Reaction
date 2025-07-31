@@ -67,7 +67,7 @@ start.bat
 # 3. Open browser
 http://localhost:5173
 
-# 4. When closing, close browser tab first. Then go to start.bat and press any key.
+# 4. When closing, close browser tab first. Then go to launcher window and press any key.
 ```
 
 ### Prerequisites
